@@ -24,7 +24,7 @@ def example_theory():
     E.add_constraint(c | y | z)
     return E
 
-
+#test
 if __name__ == "__main__":
 
     T = example_theory()
