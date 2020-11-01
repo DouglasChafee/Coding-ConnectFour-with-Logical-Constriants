@@ -3,12 +3,18 @@ from nnf import Var
 from lib204 import Encoding
 
 # Call your variables whatever you want
-a = Var('a')
-b = Var('b')
-c = Var('c')
-x = Var('x')
-y = Var('y')
-z = Var('z')
+C = Var('A winning column')
+L = Var("Black's turn")
+J = Var("Red's turn")
+R = Var("Red unit")
+B = Var('Black unit')
+H = Var("A winning row")
+Z = Var("This value is true when x is zero")
+W = Var("A winning game")
+U = Var("An occupied slot")
+P = Var("if either black or red has the option to win in one turn")
+D = Var("A winning diagonal")
+
 
 
 #
@@ -24,10 +30,50 @@ def example_theory():
     E.add_constraint(c | y | z)
     return E
 
-#test
+
+def connectFour_validWin():
+    T = Encoding()
+    T.add_constraint(~L | ~J)
+    T.add_constraint(~B | ~R)
+    T.add_constraint(B | R | Z)
+    T.add_constraint(B | R | (~B & ~R))
+    T.add_constraint(~H | ((B&B&B&B)|(R&R&R&R)))
+    T.add_constraint(~C | ((B&B&B&B)|(R&R&R&R)))
+    T.add_constraint(~P | (B&B&B&~U)|(~U&R&R&R))
+    T.add_constraint(~W | (H | C | D))
+    return T
+
+def connectFour_blackWin():
+    T = Encoding()
+    T.add_constraint(~L | ~J)
+    T.add_constraint(~B | ~R)
+    T.add_constraint(B | R | Z)
+    T.add_constraint(B | R | (~B & ~R))
+    T.add_constraint(~H | ((B&B&B&B)|(R&R&R&R)))
+    T.add_constraint(~C | ((B&B&B&B)|(R&R&R&R)))
+    T.add_constraint(~P | (B&B&B&~U)|(~U&R&R&R)|(R&R&R~U)|(~U&R&R&R))
+    T.add_constraint(~W)
+    T.add_constraint(B&B&B)
+    return T
+
+def connectFour_redWin():
+    T = Encoding()
+    T.add_constraint(~L | ~J)
+    T.add_constraint(~B | ~R)
+    T.add_constraint(B | R | Z)
+    T.add_constraint(B | R | (~B & ~R))
+    T.add_constraint(~H | ((B&B&B&B)|(R&R&R&R)))
+    T.add_constraint(~C | ((B&B&B&B)|(R&R&R&R)))
+    T.add_constraint(~P | (B&B&B&~U)|(~U&R&R&R)|(R&R&R~U)|(~U&R&R&R))
+    T.add_constraint(~W)
+    T.add_constraint(R&R&R)
+    return T
+
+
+
 if __name__ == "__main__":
 
-    T = example_theory()
+    T = connectFour_validWin()
 
     print("\nSatisfiable: %s" % T.is_satisfiable())
     print("# Solutions: %d" % T.count_solutions())
