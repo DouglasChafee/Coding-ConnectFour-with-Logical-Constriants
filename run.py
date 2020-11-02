@@ -47,7 +47,7 @@ def connectFour_blackWin():
     T.add_constraint(~P | (B & B & B & ~U)|(~U & R & R & R))
     T.add_constraint(~W)
     T.add_constraint(B&B&B)
-    return E
+    return T
 
 def connectFour_redWin():
     T = Encoding()
