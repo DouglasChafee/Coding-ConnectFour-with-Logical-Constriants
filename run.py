@@ -46,7 +46,7 @@ def connectFour_blackWin():
     T.add_constraint(~C | ((B & B & B & B)|(R & R & R & R)))
     T.add_constraint(~P | (B & B & B & ~U)|(~U & R & R & R))
     T.add_constraint(~W)
-    T.add_constraint(B&B&B)
+    T.add_constraint(B & B & B)
     return T
 
 def connectFour_redWin():
@@ -59,7 +59,7 @@ def connectFour_redWin():
     T.add_constraint(~C | ((B & B & B & B)|(R & R & R & R)))
     T.add_constraint(~P | (B & B & B & ~U)|(~U & R & R & R))
     T.add_constraint(~W)
-    T.add_constraint(R&R&R)
+    T.add_constraint(R & R & R)
     return T
 
 
