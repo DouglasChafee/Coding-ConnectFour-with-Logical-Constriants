@@ -1,5 +1,3 @@
-
-
 from nnf import Var
 from lib204 import Encoding
 
@@ -32,7 +30,7 @@ def connectFour_validWin():
     T.add_constraint(B | R | (~B & ~R))
     T.add_constraint(~H | ((B&B&B&B)|(R&R&R&R)))
     T.add_constraint(~C | ((B&B&B&B)|(R&R&R&R)))
-    T.add_constraint(~P | (~U&B&B&B)|(B&~U&B&B)(B&B&~U&B)|B&B&B&~U)|(~U&R&R&R)|(R&~U&R&R)(R&R&~U&R)|R&R&R&~U))
+    T.add_constraint(~P | (~U&B&B&B)|(B&~U&B&B)|(B&B&~U&B)|(B&B&B&~U)|(~U&R&R&R)|(R&~U&R&R)|(R&R&~U&R)|(R&R&R&~U))
     T.add_constraint(~W | (H | C | D))
     return T
 
@@ -44,7 +42,7 @@ def connectFour_blackWin():
     T.add_constraint(B | R | (~B & ~R))
     T.add_constraint(~H | ((B&B&B&B)|(R&R&R&R)))
     T.add_constraint(~C | ((B&B&B&B)|(R&R&R&R)))
-    T.add_constraint(~P | (~U&B&B&B)|(B&~U&B&B)(B&B&~U&B)|B&B&B&~U)|(~U&R&R&R)|(R&~U&R&R)(R&R&~U&R)|R&R&R&~U))
+    T.add_constraint(~P | (~U&B&B&B)|(B&~U&B&B)|(B&B&~U&B)|(B&B&B&~U)|(~U&R&R&R)|(R&~U&R&R)|(R&R&~U&R)|(R&R&R&~U))
     T.add_constraint(~W)
     T.add_constraint(B&B&B)
     return T
@@ -57,7 +55,7 @@ def connectFour_redWin():
     T.add_constraint(B | R | (~B & ~R))
     T.add_constraint(~H | ((B&B&B&B)|(R&R&R&R)))
     T.add_constraint(~C | ((B&B&B&B)|(R&R&R&R)))
-    T.add_constraint(~P | (~U&B&B&B)|(B&~U&B&B)(B&B&~U&B)|B&B&B&~U)|(~U&R&R&R)|(R&~U&R&R)(R&R&~U&R)|R&R&R&~U))
+    T.add_constraint(~P | (~U&B&B&B)|(B&~U&B&B)|(B&B&~U&B)|(B&B&B&~U)|(~U&R&R&R)|(R&~U&R&R)|(R&R&~U&R)|(R&R&R&~U))
     T.add_constraint(~W)
     T.add_constraint(R&R&R)
     return T
