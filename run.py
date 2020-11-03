@@ -1,8 +1,8 @@
 
+
 from nnf import Var
 from lib204 import Encoding
 
-# Call your variables whatever you want
 C = Var('A winning column')
 L = Var("Black's turn")
 J = Var("Red's turn")
@@ -30,9 +30,9 @@ def connectFour_validWin():
     T.add_constraint(~B | ~R)
     T.add_constraint(B | R | Z)
     T.add_constraint(B | R | (~B & ~R))
-    T.add_constraint(~H | ((B & B & B & B)|(R & R & R & R)))
-    T.add_constraint(~C | ((B & B & B & B)|(R & R & R & R)))
-    T.add_constraint(~P | (B & B & B & ~U)|(~U & R & R & R))
+    T.add_constraint(~H | ((B&B&B&B)|(R&R&R&R)))
+    T.add_constraint(~C | ((B&B&B&B)|(R&R&R&R)))
+    T.add_constraint(~P | (~U&B&B&B)|(B&~U&B&B)(B&B&~U&B)|B&B&B&~U)|(~U&R&R&R)|(R&~U&R&R)(R&R&~U&R)|R&R&R&~U))
     T.add_constraint(~W | (H | C | D))
     return T
 
@@ -42,11 +42,11 @@ def connectFour_blackWin():
     T.add_constraint(~B | ~R)
     T.add_constraint(B | R | Z)
     T.add_constraint(B | R | (~B & ~R))
-    T.add_constraint(~H | ((B & B & B & B)|(R & R & R & R)))
-    T.add_constraint(~C | ((B & B & B & B)|(R & R & R & R)))
-    T.add_constraint(~P | (B & B & B & ~U)|(~U & R & R & R))
+    T.add_constraint(~H | ((B&B&B&B)|(R&R&R&R)))
+    T.add_constraint(~C | ((B&B&B&B)|(R&R&R&R)))
+    T.add_constraint(~P | (~U&B&B&B)|(B&~U&B&B)(B&B&~U&B)|B&B&B&~U)|(~U&R&R&R)|(R&~U&R&R)(R&R&~U&R)|R&R&R&~U))
     T.add_constraint(~W)
-    T.add_constraint(B & B & B)
+    T.add_constraint(B&B&B)
     return T
 
 def connectFour_redWin():
@@ -55,24 +55,24 @@ def connectFour_redWin():
     T.add_constraint(~B | ~R)
     T.add_constraint(B | R | Z)
     T.add_constraint(B | R | (~B & ~R))
-    T.add_constraint(~H | ((B & B & B & B)|(R & R & R & R)))
-    T.add_constraint(~C | ((B & B & B & B)|(R & R & R & R)))
-    T.add_constraint(~P | (B & B & B & ~U)|(~U & R & R & R))
+    T.add_constraint(~H | ((B&B&B&B)|(R&R&R&R)))
+    T.add_constraint(~C | ((B&B&B&B)|(R&R&R&R)))
+    T.add_constraint(~P | (~U&B&B&B)|(B&~U&B&B)(B&B&~U&B)|B&B&B&~U)|(~U&R&R&R)|(R&~U&R&R)(R&R&~U&R)|R&R&R&~U))
     T.add_constraint(~W)
-    T.add_constraint(R & R & R)
+    T.add_constraint(R&R&R)
     return T
 
 
 
 if __name__ == "__main__":
 
-    T = connectFour_blackWin()
+    T = connectFour_validWin()
 
     print("\nSatisfiable: %s" % T.is_satisfiable())
     print("# Solutions: %d" % T.count_solutions())
     print("   Solution: %s" % T.solve())
 
     print("\nVariable likelihoods:")
-    for v,vn in zip([a,b,c,x,y,z], 'abcxyz'):
-        print(" %s: %.2f" % (vn, T.likelihood(v)))
+    for v,vn in zip([P,W,H,C,D], 'PWHCD'):
+        print(" %s: %.2f" % (v, T.likelihood(vn)))
     print()
