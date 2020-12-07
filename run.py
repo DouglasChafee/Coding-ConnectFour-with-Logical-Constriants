@@ -37,6 +37,7 @@ redBoard=[]
 emptyBoard=[]
 winRow=[]
 winColumn=[]
+winDiagonal=[]
 for i in range(rowNum): 
     blackBoard.append([])
     redBoard.append([])
@@ -49,8 +50,13 @@ for i in range(rowNum):
         if (j < columnNum - 3):
           winRow[i].append(Var(f"WinningRow({i},{j})"))
 # # Printing example of Black connect four Game Board
-for row in winRow:
-  print(row)
+# for row in winRow:
+#   print(row)
+
+for i in range(rowNum- 3): 
+    winDiagonal.append([])
+    for j in range(columnNum - 3):
+        winDiagonal[i].append(Var(f"WinningDiagonal({i},{j})"))
 
 for i in range(rowNum- 3): 
     winColumn.append([])
@@ -94,7 +100,21 @@ def rowWin(E):
       #Checks that there is at least one possible route to play in order to win by a row
       if (i > 0):
         E.add_constraint(winRow[i][j] >> (emptyBoard[i-1][j] | emptyBoard[i-1][j + 1] | emptyBoard[i-1][j + 2] | emptyBoard[i-1][j + 3]))
-    
+        
+        
+  #blackBoard.clear()
+  #redBoard.clear()
+
+  #for i in range(len(blackBoard)):
+ #   blackBoard.append([])
+ #   for j in range(len(blackBoard[i])):
+ #     blackBoard[i][j] = "N"
+   
+ # for i in range(len(redBoard)):
+ #   redBoard.append([])
+ #   for j in range(len(redBoard[i])):
+ #     redBoard[i][j] = "N" 
+      
   return E
 
 def columnWin(E):
@@ -108,10 +128,42 @@ def columnWin(E):
       #Checks that there is at least one possible route to play in order to win by a row
       if (i > 0):
         E.add_constraint(winColumn[i][j] >> (emptyBoard[i-1][j]))
+      special = winColumn[i][j]
+      f = true.negate()
+      for i2 in range(rowNum - 3):
+        for j2 in range(columnNum):
+          if (i != i2) | (j != j2):
+            print(i, i2, j, j2)
+            f |= winColumn[i][j]
+      E.add_constraint(special >> ~f)
   return E
+def diagonalWin(E):
+  for i in range(rowNum - 3):
+    for j in range(columnNum):
+      #Winning row and its position of the 4 slots within the row.
+      if ((i == 5) & (j < 4)): 
+        E.add_constraint(iff(winDiagonal[i][j], (blackBoard[i][j] & blackBoard[i+1][j+1] & blackBoard[i+2][j+2] & blackBoard[i+3][j+3])))
+      elif ((1 < i < 4) & (1 < j < 5)):
+        E.add_constraint(iff(winDiagonal[i][j], (blackBoard[i-1][j-1] & blackBoard[i][j] & blackBoard[i+1][j+1] & blackBoard[i+2][j+2])))
+      elif ((0 < i < 3) & (2 < j < 6)):
+        E.add_constraint(iff(winDiagonal[i][j], (blackBoard[i-2][j-2] & blackBoard[i-1][j-1] & blackBoard[i][j] & blackBoard[i+1][j+1])))
+      elif ((i == 0) & (j > 2)):
+        E.add_constraint(iff(winDiagonal[i][j], (blackBoard[i-3][j-3] & blackBoard[i-2][j-2] & blackBoard[i-1][j-1] & blackBoard[i][j])))
+# ------------------------------------------------------------------------------------------------------------------------------------------------
+      elif ((i == 5) & (j < 4)): 
+        E.add_constraint(iff(winDiagonal[i][j], (blackBoard[i][j] & blackBoard[i-1][j+1] & blackBoard[i-2][j+2] & blackBoard[i-3][j+3])))
+      elif ((1 < i < 4) & (1 < j < 5)):
+        E.add_constraint(iff(winDiagonal[i][j], (blackBoard[i+1][j-1] & blackBoard[i][j] & blackBoard[i-1][j+1] & blackBoard[i-2][j+2])))
+      elif ((0 < i < 3) & (2 < j < 6)):
+        E.add_constraint(iff(winDiagonal[i][j], (blackBoard[i+2][j-2] & blackBoard[i+1][j-1] & blackBoard[i][j] & blackBoard[i-1][j+1])))
+      elif ((i == 0) & (j > 2)):
+        E.add_constraint(iff(winDiagonal[i][j], (blackBoard[i+3][j-3] & blackBoard[i+2][j-2] & blackBoard[i+1][j-1] & blackBoard[i][j])))
+      # E.add_constraint(iff(winRow[i][j], (redBoard[i][j] & redBoard[i][j + 1] & redBoard[i][j + 2] & redBoard[i][j + 3])))
 
-#def diagonalWin(E):
-  #for i in range()doug is gay
+      #Checks that there is at least one possible route to play in order to win by a row
+      if (i > 0):
+        E.add_constraint(winColumn[i][j] >> (emptyBoard[i-1][j]))
+  return E
 
 # Addd constriants to check if all occupied position below current is occupied position
 def gravityRule(i, j):
@@ -190,17 +242,17 @@ def validBoard(E):
 #  what the expectations are.
 
 def connectFour():
-    E = Encoding()
-    E = validBoard(E)
-    E = rowWin(E)
-    E = columnWin(E)
+  E = Encoding()
+  E = validBoard(E)
+  E = rowWin(E)
+  E = columnWin(E)
     #add winning function with constraints like validBoard to see if board is a won state.
 
     #E.add_constraint(emptyBoard[0][0])
     #E.add_constraint(~emptyBoard[0][0])
 
-
-    return E
+  E.add_constraint(winColumn[0][0])
+  return E
 
 
 if __name__ == "__main__":
