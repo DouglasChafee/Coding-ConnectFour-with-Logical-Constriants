@@ -62,6 +62,8 @@ for i in range(rowNum- 3):
 # Printing varible board for Diagonals
 for row in winDiagonal:
   print(row)
+for row in winRow:
+  print(row)
 
 
 # Prints a Connect Four board using .solve dictionary
@@ -70,7 +72,7 @@ def printBoard(dic):
   for i in range(rowNum): 
     board.append([])
     for j in range(columnNum):
-      board[i].append("N")
+      board[i].append("-")
   if dic == None:
     print("NonSatisfiable Board")
     return []
@@ -95,6 +97,15 @@ def rowWin(E):
 
       #Checks that there is at least one possible route to play in order to win by a row
       E.add_constraint(winRow[i][j] >> (emptyBoard[i-1][j] | emptyBoard[i-1][j + 1] | emptyBoard[i-1][j + 2] | emptyBoard[i-1][j + 3]))
+
+      special = winRow[i][j]
+      f = ~true
+      for i2 in range(rowNum):
+        for j2 in range(columnNum - 3):
+          if (i != i2) | (j != j2):
+            f |= winRow[i2][j2]
+      E.add_constraint(special >> ~f)
+  return E
         
         
   #blackBoard.clear()
@@ -131,34 +142,65 @@ def columnWin(E):
       E.add_constraint(special >> ~f)
   return E
 
-
-def diagonalWin(E):
+def leftDiagonalWin(E):
   for i in range(rowNum - 3):
-    for j in range(columnNum):
-      #Winning row and its position of the 4 slots within the row.
-      if ((i == 5) & (j < 4)): 
-        E.add_constraint(iff(winDiagonal[i][j], (blackBoard[i][j] & blackBoard[i+1][j+1] & blackBoard[i+2][j+2] & blackBoard[i+3][j+3])))
-      elif ((1 < i < 4) & (1 < j < 5)):
-        E.add_constraint(iff(winDiagonal[i][j], (blackBoard[i-1][j-1] & blackBoard[i][j] & blackBoard[i+1][j+1] & blackBoard[i+2][j+2])))
-      elif ((0 < i < 3) & (2 < j < 6)):
-        E.add_constraint(iff(winDiagonal[i][j], (blackBoard[i-2][j-2] & blackBoard[i-1][j-1] & blackBoard[i][j] & blackBoard[i+1][j+1])))
-      elif ((i == 0) & (j > 2)):
-        E.add_constraint(iff(winDiagonal[i][j], (blackBoard[i-3][j-3] & blackBoard[i-2][j-2] & blackBoard[i-1][j-1] & blackBoard[i][j])))
-# ------------------------------------------------------------------------------------------------------------------------------------------------
-      elif ((i == 5) & (j < 4)): 
-        E.add_constraint(iff(winDiagonal[i][j], (blackBoard[i][j] & blackBoard[i-1][j+1] & blackBoard[i-2][j+2] & blackBoard[i-3][j+3])))
-      elif ((1 < i < 4) & (1 < j < 5)):
-        E.add_constraint(iff(winDiagonal[i][j], (blackBoard[i+1][j-1] & blackBoard[i][j] & blackBoard[i-1][j+1] & blackBoard[i-2][j+2])))
-      elif ((0 < i < 3) & (2 < j < 6)):
-        E.add_constraint(iff(winDiagonal[i][j], (blackBoard[i+2][j-2] & blackBoard[i+1][j-1] & blackBoard[i][j] & blackBoard[i-1][j+1])))
-      elif ((i == 0) & (j > 2)):
-        E.add_constraint(iff(winDiagonal[i][j], (blackBoard[i+3][j-3] & blackBoard[i+2][j-2] & blackBoard[i+1][j-1] & blackBoard[i][j])))
-      # E.add_constraint(iff(winRow[i][j], (redBoard[i][j] & redBoard[i][j + 1] & redBoard[i][j + 2] & redBoard[i][j + 3])))
+    for j in range(columnNum - 3):
+      #Winning diagonal going right and down.
+      E.add_constraint(iff(winDiagonal[i][j], ((blackBoard[i][j] & blackBoard[i+1][j+1] & blackBoard[i+2][j+2] & blackBoard[i+3][j+3]) | (redBoard[i][j] & redBoard[i+1][j+1] & redBoard[i+2][j+2] & redBoard[i+3][j+3]))))
 
-      #Checks that there is at least one possible route to play in order to win by a row
-      if (i > 0):
-        E.add_constraint(winColumn[i][j] >> (emptyBoard[i-1][j]))
+      E.add_constraint(winDiagonal[i][j-3] >> (emptyBoard[i-1][j] | emptyBoard[i][j+1] | emptyBoard[i-1][j+2] | emptyBoard[i-2][j+3]))
+      
+      #Only one left facing diagonal can be a winning diagonal 
+      special = winDiagonal[i][j]
+      f = ~true
+      for i2 in range(rowNum - 3):
+        for j2 in range(columnNum - 3):
+          if (i != i2) | (j != j2):
+            f |= winDiagonal[i2][j2]
+      E.add_constraint(special >> ~f)
   return E
+
+
+def rightDiagonalWin(E):
+  for i in range(rowNum - 3):
+    for j in range(columnNum - 4, columnNum):
+      #Winning diagonal going left and down.
+      E.add_constraint(iff(winDiagonal[i][j-3], ((blackBoard[i][j] & blackBoard[i+1][j-1] & blackBoard[i+2][j-2] & blackBoard[i+3][j-3]) | (redBoard[i][j] & redBoard[i+1][j-1] & redBoard[i+2][j-2] & redBoard[i+3][j-3]))))
+
+      E.add_constraint(winDiagonal[i][j-3] >> (emptyBoard[i-1][j] | emptyBoard[i][j-1] | emptyBoard[i-1][j - 2] | emptyBoard[i-2][j - 3]))
+
+      #Only one right facing diagonal can be a winning diagonal 
+      special = winDiagonal[i][j-3]
+      f = ~true
+      for i2 in range(rowNum - 3):
+        for j2 in range(columnNum - 4, columnNum):
+          if (i != i2) | (j != j2):
+            f |= winDiagonal[i2][j2-3]
+      E.add_constraint(special >> ~f)
+  return E
+
+#       elif ((1 < i < 4) & (1 < j < 5)):
+#         E.add_constraint(iff(winDiagonal[i][j], (blackBoard[i-1][j-1] & blackBoard[i][j] & blackBoard[i+1][j+1] & blackBoard[i+2][j+2])))
+#       elif ((0 < i < 3) & (2 < j < 6)):
+#         E.add_constraint(iff(winDiagonal[i][j], (blackBoard[i-2][j-2] & blackBoard[i-1][j-1] & blackBoard[i][j] & blackBoard[i+1][j+1])))
+#       elif ((i == 0) & (j > 2)):
+#         E.add_constraint(iff(winDiagonal[i][j], (blackBoard[i-3][j-3] & blackBoard[i-2][j-2] & blackBoard[i-1][j-1] & blackBoard[i][j])))
+# # ------------------------------------------------------------------------------------------------------------------------------------------------
+#       elif ((i == 5) & (j < 4)): 
+#         E.add_constraint(iff(winDiagonal[i][j], (blackBoard[i][j] & blackBoard[i-1][j+1] & blackBoard[i-2][j+2] & blackBoard[i-3][j+3])))
+#       elif ((1 < i < 4) & (1 < j < 5)):
+#         E.add_constraint(iff(winDiagonal[i][j], (blackBoard[i+1][j-1] & blackBoard[i][j] & blackBoard[i-1][j+1] & blackBoard[i-2][j+2])))
+#       elif ((0 < i < 3) & (2 < j < 6)):
+#         E.add_constraint(iff(winDiagonal[i][j], (blackBoard[i+2][j-2] & blackBoard[i+1][j-1] & blackBoard[i][j] & blackBoard[i-1][j+1])))
+#       elif ((i == 0) & (j > 2)):
+#         E.add_constraint(iff(winDiagonal[i][j], (blackBoard[i+3][j-3] & blackBoard[i+2][j-2] & blackBoard[i+1][j-1] & blackBoard[i][j])))
+#       # E.add_constraint(iff(winRow[i][j], (redBoard[i][j] & redBoard[i][j + 1] & redBoard[i][j + 2] & redBoard[i][j + 3])))
+
+  #     #Checks that there is at least one possible route to play in order to win by a row
+  #     if (i > 0):
+  #       E.add_constraint(winColumn[i][j] >> (emptyBoard[i-1][j]))
+  # return E
+
 
 # Addd constriants to check if all occupied position below current is occupied position
 def gravityRule(i, j):
@@ -230,18 +272,15 @@ def validBoard(E):
 # def redWins(E):
   
   # return true
-#
-# Build an example full theory for your setting and return it.
-#
-#  There should be at least 10 variables, and a sufficiently large formula to describe it (>50 operators).
-#  This restriction is fairly minimal, and if there is any concern, reach out to the teaching staff to clarify
-#  what the expectations are.
 
+# Build an example full theory for your setting and return it.
 def connectFour():
   E = Encoding()
   E = validBoard(E)
   E = rowWin(E)
   E = columnWin(E)
+  E = leftDiagonalWin(E)
+  E = rightDiagonalWin(E)
     #add winning function with constraints like validBoard to see if board is a won state.
 
     #E.add_constraint(emptyBoard[0][0])
