@@ -1,4 +1,3 @@
-
 from nnf import Var,true
 from lib204 import Encoding
 
@@ -27,11 +26,11 @@ def iff(left, right):
 # P = Var("if either black or red has the option to win in one turn")
 # D = Var("A winning diagonal")
 
-# Creating ConnectFour Game Board
+# ConnectFour Game Board Dimestions
 rowNum = 6
 columnNum = 7
 
-# Creating boards for all possibilities starting bottom left (5,0) of that a single position could be, black, red, or empty
+# Creating boards for all the possibilities of each variables
 blackBoard=[]
 redBoard=[]
 emptyBoard=[]
@@ -49,9 +48,6 @@ for i in range(rowNum):
         emptyBoard[i].append(Var(f"Empty({i},{j})"))
         if (j < columnNum - 3):
           winRow[i].append(Var(f"WinningRow({i},{j})"))
-# # Printing example of Black connect four Game Board
-# for row in winRow:
-#   print(row)
 
 for i in range(rowNum- 3): 
     winDiagonal.append([])
@@ -63,10 +59,12 @@ for i in range(rowNum- 3):
     for j in range(columnNum):
         winColumn[i].append(Var(f"WinningColumn({i},{j})"))
 
-for row in winColumn:
+# Printing varible board for Diagonals
+for row in winDiagonal:
   print(row)
 
-# Prints a Connect Four board
+
+# Prints a Connect Four board using .solve dictionary
 def printBoard(dic):
   board=[]
   for i in range(rowNum): 
@@ -92,14 +90,11 @@ def printBoard(dic):
 def rowWin(E):
   for i in range(rowNum):
     for j in range(columnNum - 3):
-      #Winning row and its position of the 4 slots within the row. 
-      E.add_constraint(iff(winRow[i][j], (blackBoard[i][j] & blackBoard[i][j + 1] & blackBoard[i][j + 2] & blackBoard[i][j + 3])))
-
-      # E.add_constraint(iff(winRow[i][j], (redBoard[i][j] & redBoard[i][j + 1] & redBoard[i][j + 2] & redBoard[i][j + 3])))
+      #Winning row and its position of either 4 red or 4 black slots within the row. 
+      E.add_constraint(iff(winRow[i][j], ((blackBoard[i][j] & blackBoard[i][j + 1] & blackBoard[i][j + 2] & blackBoard[i][j + 3]) | (redBoard[i][j] & redBoard[i][j + 1] & redBoard[i][j + 2] & redBoard[i][j + 3]))))
 
       #Checks that there is at least one possible route to play in order to win by a row
-      if (i > 0):
-        E.add_constraint(winRow[i][j] >> (emptyBoard[i-1][j] | emptyBoard[i-1][j + 1] | emptyBoard[i-1][j + 2] | emptyBoard[i-1][j + 3]))
+      E.add_constraint(winRow[i][j] >> (emptyBoard[i-1][j] | emptyBoard[i-1][j + 1] | emptyBoard[i-1][j + 2] | emptyBoard[i-1][j + 3]))
         
         
   #blackBoard.clear()
@@ -120,23 +115,23 @@ def rowWin(E):
 def columnWin(E):
   for i in range(rowNum - 3):
     for j in range(columnNum):
-      #Winning row and its position of the 4 slots within the row. 
-      E.add_constraint(iff(winColumn[i][j], (blackBoard[i][j] & blackBoard[i+1][j] & blackBoard[i+2][j] & blackBoard[i+3][j])))
+      #Winning column and its position of either 4 red or 4 black slots within the column. 
+      E.add_constraint(iff(winColumn[i][j], ((blackBoard[i][j] & blackBoard[i+1][j] & blackBoard[i+2][j] & blackBoard[i+3][j]) | (redBoard[i][j] & redBoard[i+1][j] & redBoard[i+2][j] & redBoard[i+3][j]))))
 
-      # E.add_constraint(iff(winRow[i][j], (redBoard[i][j] & redBoard[i][j + 1] & redBoard[i][j + 2] & redBoard[i][j + 3])))
-
-      #Checks that there is at least one possible route to play in order to win by a row
-      if (i > 0):
-        E.add_constraint(winColumn[i][j] >> (emptyBoard[i-1][j]))
+      #Checks that there is a possible route to play in order to win by a column
+      E.add_constraint(winColumn[i][j] >> (emptyBoard[i-1][j]))
+      
+      #Checks that only one column can win
       special = winColumn[i][j]
-      f = true.negate()
+      f = ~true
       for i2 in range(rowNum - 3):
         for j2 in range(columnNum):
           if (i != i2) | (j != j2):
-            print(i, i2, j, j2)
-            f |= winColumn[i][j]
+            f |= winColumn[i2][j2]
       E.add_constraint(special >> ~f)
   return E
+
+
 def diagonalWin(E):
   for i in range(rowNum - 3):
     for j in range(columnNum):
@@ -182,10 +177,11 @@ def validBoard(E):
 
       # If position(i, j) is red, then neither black or empty can occupy position(i, j)
       E.add_constraint(redBoard[i][j] >> (~blackBoard[i][j] & ~emptyBoard[i][j] & gravityRule(i, j)))
+
+      # If position(i, j) is black, then neither red or empty can occupy position(i, j)
       E.add_constraint(blackBoard[i][j] >> (~redBoard[i][j] & ~emptyBoard[i][j] & gravityRule(i, j)))
 
-      # there must be non # empy positions below position(i,j) (gravity).
-      #E.add_constraint(~emptyBoard[i][j] >> gravityRule(i, j))
+      # Could add constraint so that one side must win!
 
       # make sure implication works properly above, exactly one has to be true.
       E.add_constraint(emptyBoard[i][j] | redBoard[i][j] | blackBoard[i][j])
@@ -251,7 +247,8 @@ def connectFour():
     #E.add_constraint(emptyBoard[0][0])
     #E.add_constraint(~emptyBoard[0][0])
 
-  E.add_constraint(winColumn[0][0])
+  #Checks if functions work/dont condradict each other
+  #E.add_constraint(winColumn[1][2])
   return E
 
 
