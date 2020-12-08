@@ -317,7 +317,7 @@ def validBoard(E):
 
   E.add_constraint(iff(RedWin, (RedColumnWin() | RedRowWin() | leftRedDiagonalWin() | rightRedDiagonalWin())))
 
-  # E.add_constraint(iff(NoWin, ((~BlackColumnWin() | ~BlackRowWin() | ~leftBlackDiagonalWin() | ~rightBlackDiagonalWin()) & (~RedColumnWin() | ~RedRowWin() | ~leftRedDiagonalWin() | ~rightRedDiagonalWin()))))
+  E.add_constraint(iff(NoWin, ((~BlackColumnWin() & ~BlackRowWin() & ~leftBlackDiagonalWin() & ~rightBlackDiagonalWin()) & (~RedColumnWin() & ~RedRowWin() & ~leftRedDiagonalWin() | ~rightRedDiagonalWin()))))
   
 
   #All posibilities of Connect Four
@@ -359,12 +359,12 @@ def connectFour():
   E = leftDiagonalWin(E)
   E = rightDiagonalWin(E)
   E = columnRules(E)
-  # E.add_constraint(BlackWin)
+  #E.add_constraint(BlackWin)
   #E.add_constraint(RedWin)
     #add winning function with constraints like validBoard to see if board is a won state.
 
     #E.add_constraint(emptyBoard[0][0])
-    #E.add_constraint(~emptyBoard[0][0])
+    #E.add_constraint(emptyBoard[0][0])
 
   #Checks if functions work/dont condradict each other
   #E.add_constraint(blackBoard[0][0] & blackBoard[1][1] & blackBoard[2][2] & blackBoard[3][3] & blackBoard[4][4] & blackBoard[5][5])
@@ -372,7 +372,6 @@ def connectFour():
   # for i in range(6):
   #   for j in range(4):
   #     E.add_constraint(~blackRow[i][j])
-  # E.add_constraint(blackColumn[1][2] & rightBlackDiagonal[0][0])
   return E
 
 
